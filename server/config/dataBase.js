@@ -1,15 +1,23 @@
-const mongoose = require("mongoose");
-const logger = require("../utils/logger");
+import mongoose from "mongoose";
+import logger from "../utils/logger.js";
 
-
-
-const  connectDB = async() =>{
+const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URL)
-    logger.info("MongoDB connected")
+    const conn = await mongoose.connect(process.env.MONGO_URL);
+
+    logger.info(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.log(err)
-    process.exit(1)
+    logger.error(`MongoDB Connection Error: ${error.message}`);
+    process.exit(1);
   }
-}
-module.exports = connectDB
+};
+
+mongoose.connection.on("disconnected", () => {
+  logger.warn("MongoDB disconnected");
+});
+
+mongoose.connection.on("reconnected", () => {
+  logger.info("MongoDB reconnected");
+});
+
+export default connectDB;

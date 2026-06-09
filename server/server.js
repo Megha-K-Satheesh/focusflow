@@ -1,16 +1,37 @@
-const dotenv = require("dotenv")
-const express = require("express");
-const connectDB = require("./config/dataBase");
-const logger = require("./utils/logger");
+import dotenv from "dotenv";
+
+dotenv.config();
+
+import express from "express";
+import connectDB from "./config/dataBase.js";
+import errorHandler from "./middleware/errorHandler.js";
+import { requestLogger } from "./middleware/requestLogger.js";
+import { setupRoutes } from "./routes/index.js";
+import logger from "./utils/logger.js";
 
 const app = express();
 
-dotenv.config()
-connectDB()
-app.get('/',(req,res)=>{
-    res.send("Server is running...")
-})
 
-app.listen(process.env.PORT,()=>{
-   logger.info(`server is running on the  port ${process.env.PORT}`)
-})
+app.use(express.json());
+app.use(requestLogger);
+setupRoutes(app);
+app.use(errorHandler);
+
+
+
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    const PORT = process.env.PORT ||5000;
+    
+    app.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    logger.error("DB connection failed", error);
+    process.exit(1);
+  }
+};
+
+startServer();
