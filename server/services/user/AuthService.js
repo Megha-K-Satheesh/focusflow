@@ -1,6 +1,8 @@
 import User from "../../models/User.js";
 import { generateOtp, sendOtpEmail } from "../../utils/emailService.js";
 import { ErrorFactory } from "../../utils/errors.js";
+import { generateUserToken } from "../../utils/jwt.js";
+import logger from "../../utils/logger.js";
 
 class AuthService{
 
@@ -71,6 +73,35 @@ class AuthService{
     message: "Email verified successfully",
       user: user.getPublicProfile()
   };
+}
+
+static async login(data){
+  const {email,password} = data;
+  const user = await User.findOne({email});
+  if(!user){
+    throw ErrorFactory.notFound("User not found");
+  }
+  if(!user.isVerified){
+    throw ErrorFactory.authorization('Please verify your email before logging in');
+  }
+  const isPasswordValid = await user.comparePassword(password)
+  if(!isPasswordValid){
+    throw ErrorFactory.authentication("Invalid email or password")
+  }
+  user.lastLogin = new Date();
+  await user.save()
+  const token  = generateUserToken({
+     id:user.id,
+     email:user.email,
+     role:user.role
+
+  });
+  logger.info(`User logged in with ${email}`)
+  return {
+    user:user.getPublicProfile(),
+    
+    token
+  }
 }
 }
 

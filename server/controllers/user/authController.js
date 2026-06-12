@@ -25,5 +25,13 @@ static verifyOtp = asyncHandler(async (req, res) => {
   );
 });
 
+static login = asyncHandler(async(req,res)=>{
+    const result = await AuthService.login(req.body);
+    return ResponseHandler.success(
+      res,
+      "Login successful",
+      result
+    )
+})
 }
 export default AuthController

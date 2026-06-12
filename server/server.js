@@ -2,15 +2,20 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+import cors from "cors";
 import express from "express";
 import connectDB from "./config/dataBase.js";
 import errorHandler from "./middleware/errorHandler.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { setupRoutes } from "./routes/index.js";
 import logger from "./utils/logger.js";
-
 const app = express();
-
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(requestLogger);

@@ -24,9 +24,9 @@ export const verifyOtp = createAsyncThunk(
   'auth/verifyOtp',
   async (data, thunkAPI) => {
     try {
-      const res = await authService.verifyOtp(data);
+      const response = await authService.verifyOtp(data);
      
-      return res.data.data;
+      return response.data.data;
     } catch (err) {
         
 
@@ -35,24 +35,33 @@ export const verifyOtp = createAsyncThunk(
   }
 );
 
+export const login = createAsyncThunk("auth/login",
+  async(data,thunkAPI)=>{
+    try {
+      const response = await authService.login(data)
+       return response.data.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Login falied')
+    }
+  })
 
 
+const token = localStorage.getItem('token')
 const initialState = {
   user: null,
   userId: localStorage.getItem("otpUserId") || null,
   isOtpSent: false,
   loading: false,
   error: null,
+  isAuthenticated:!!token
 };
 
 const authSlice = createSlice({
     name:"auth",
     initialState,
     reducers:{
-       login:(state,action)=>{
-        state.user = action.payload;
-        state.isLoggedIn = true
-       },
+       
+       
        logout:(state)=>{
         state.user = null,
         state.isLoggedIn= false
@@ -100,8 +109,26 @@ const authSlice = createSlice({
     .addCase(verifyOtp.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload;
-    });
+    })
+    .addCase(login.pending,(state)=>{
+      state.loading = true;
+      state.error = null
+    })
+    .addCase(login.fulfilled,(state,action)=>{
+      state.loading = false;
+      state.error = null;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.isAuthenticated = true;
+
+      localStorage.setItem("token",action.payload.token)
+    })
+    .addCase(login.rejected,(state,action)=>{
+      state.loading = false;
+      state.error = action.payload;
+
+    })
 }
 })
-export const { login, logout } = authSlice.actions;
+export const {  logout } = authSlice.actions;
 export default authSlice.reducer
