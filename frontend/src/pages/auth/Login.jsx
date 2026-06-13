@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { login } from "../../redux/slices/user/authSlice";
 import { showError, showSuccess } from "../../utils/toast";
 
@@ -113,23 +113,26 @@ Welcome Back </h1>
             Forgot Password?
           </button>
         </div>
-
+         
         <button
           type="submit"
           className="w-full bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-violet-700 transition-all duration-300"
         >
           Login
         </button>
+       
       </form>
 
       <p className="text-center text-sm text-gray-500 mt-6">
         Don't have an account?{" "}
+           <Link to ='/register'>
         <button
           type="button"
           className="text-purple-600 font-medium hover:underline"
         >
-          Register
+          {loading ? "Logging in..." : "Login"}
         </button>
+           </Link>
       </p>
     </div>
   </div>

@@ -57,6 +57,9 @@ class ErrorFactory {
   static conflict(msg) {
     return new ConflictError(msg);
   }
+   static generic(message, statusCode, code) {
+    return new AppError(message, statusCode, code);
+  }
 }
 
 export {

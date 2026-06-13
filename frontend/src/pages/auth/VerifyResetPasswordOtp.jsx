@@ -1,45 +1,45 @@
-
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { verifyOtp } from "../../redux/slices/user/authSlice";
+import { useNavigate } from "react-router-dom";
+import { verifyResetPasswordOtp } from "../../redux/slices/user/authSlice";
 import { showError, showSuccess } from "../../utils/toast";
 
-function VerifyOtp() {
-
-  const dispatch = useDispatch()
-  const {loading} = useSelector((state)=>state.auth)
+function ResetPasswordOtp() {
+  const dispatch = useDispatch();
+ const navigate = useNavigate()
+ const { loading } = useSelector((state) => state.auth);
   const {
     register,
     handleSubmit,
     formState: { errors }
   } = useForm();
- 
-  const userId =
-  useSelector((state) => state.auth.userId) ||
-  localStorage.getItem("otpUserId");
 
- 
+  const userId =localStorage.getItem("resetOtpUserId");
 
-  const onSubmit = async(data) => {
-   try{
-    await   dispatch(verifyOtp({userId,
-        otp: data.otp,
-        purpose: "EMAIL_VERIFICATION"})).unwrap()
-    
-       showSuccess("Verifyed Successfully")
-     
-    } catch(err) {
-       showError(err)
+  const onSubmit = async (data) => {
+    try {
+      await dispatch(
+        verifyResetPasswordOtp({
+          userId,
+          otp: data.otp,
+          purpose: "PASSWORD_RESET"
+        })
+      ).unwrap();
+
+      showSuccess("OTP Verified Successfully");
+      navigate('/reset-password')
+    } catch (err) {
+      showError(err);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-200 via-purple-50 to-violet-200 px-4">
-      
+
       <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border border-purple-100 text-center">
-        
+
         <h1 className="text-3xl font-bold text-purple-800 mb-2">
-          Verify OTP
+          Reset Password OTP
         </h1>
 
         <p className="text-gray-500 mb-6">
@@ -75,7 +75,7 @@ function VerifyOtp() {
             type="submit"
             className="w-full bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-violet-700 transition-all duration-300"
           >
-           {loading ? "Verifying..." : "Verify OTP"}
+            {loading ? "Verifying..." : "Verify OTP"}
           </button>
 
         </form>
@@ -92,4 +92,4 @@ function VerifyOtp() {
   );
 }
 
-export default VerifyOtp;
+export default ResetPasswordOtp;

@@ -33,5 +33,27 @@ static login = asyncHandler(async(req,res)=>{
       result
     )
 })
+
+static forgotPassword = asyncHandler(async(req,res)=>{
+
+    const result = await AuthService.forgotPassword(req.body);
+    return ResponseHandler.success(
+      res,
+      "Forgot password successfull",
+      result
+    )
+})
+static verifyOtpResetPassword = asyncHandler(async(req,res)=>{
+  const result =await AuthService.verifyResetPasswordOtp(req.body);
+  return ResponseHandler.success(
+    res,
+    'OTP verified successfully',
+    result
+  )
+})
+static resetPassword = asyncHandler(async(req,res)=>{
+  const result = await AuthService.resetPassword(req.body);
+  return ResponseHandler.success(res,"Reset Password successfull",result)
+})
 }
 export default AuthController

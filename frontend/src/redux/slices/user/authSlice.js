@@ -44,7 +44,30 @@ export const login = createAsyncThunk("auth/login",
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Login falied')
     }
   })
-
+  export const forgotPassword = createAsyncThunk("auth/forgotPassword",async(data,thunkAPI)=>{
+    try {
+          const response = await authService.forgotPassword(data)
+          return response.data.data
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || "Forgot password failed")
+    }
+  })
+export const verifyResetPasswordOtp = createAsyncThunk("auth/verifyResetPasswordOtp",async(data,thunkAPI)=>{
+  try {
+        const response = await authService.verifyResetPasswordOtp(data);
+        return response.data.data
+  } catch (err) {
+    return thunkAPI.rejectWithValue(err.response?.data?.message ||"VerifyResetPasswordOtp is falied")
+  }
+})
+export const resetPassword = createAsyncThunk("auth/resetPassword",async(data,thunkAPI)=>{
+  try {
+      const response = await authService.resetPassword(data);
+      return response.data.data
+  } catch (err) {
+     return thunkAPI.rejectWithValue(err.response?.data?.message ||"ResetPassword is falied")
+  }
+})
 
 const token = localStorage.getItem('token')
 const initialState = {
@@ -78,6 +101,7 @@ const authSlice = createSlice({
 
     .addCase(registerUser.fulfilled, (state, action) => {
       state.loading = false;
+      state.error = null
       state.isOtpSent = true;
       state.userId = action.payload.userId || null;
 
@@ -99,6 +123,7 @@ const authSlice = createSlice({
 
     .addCase(verifyOtp.fulfilled, (state, action) => {
       state.loading = false;
+      state.error = null;
       state.user = action.payload.user;
       state.userId = null;
       state.isOtpSent = false;
@@ -127,6 +152,53 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
 
+    })
+    .addCase(forgotPassword.pending,(state)=>{
+       state.loading = true;
+       state.error = null;
+    })
+    .addCase(forgotPassword.fulfilled,(state,action)=>{
+      state.loading  = false;
+      state.error = null;
+      state.userId = action.payload.user;
+
+      if(action.payload.user){
+         localStorage.setItem('resetOtpUserId',action.payload.user)
+      }
+    })
+    .addCase(forgotPassword.rejected,(state,action)=>{
+      state.loading  = false;
+      state.error  = action.payload;
+    })
+    .addCase(verifyResetPasswordOtp.pending,(state)=>{
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(verifyResetPasswordOtp.fulfilled,(state,action)=>{
+        state.loading = false;
+        state.error = null;
+        if(action.payload.resetToken){
+          localStorage.setItem("resetToken",action.payload.resetToken)
+        }
+       
+    })
+    .addCase(verifyResetPasswordOtp.rejected,(state,action)=>{
+       state.loading = false;
+        state.error = action.payload;
+    })
+    .addCase(resetPassword.pending,(state)=>{
+       state.loading = true;
+       state.error = null
+    })
+    .addCase(resetPassword.fulfilled,(state)=>{
+       state.loading = false;
+       state.error = null;
+       localStorage.removeItem('resetToken')
+        localStorage.removeItem("resetOtpUserId");
+    })
+    .addCase(resetPassword.rejected,(state,action)=>{
+       state.loading = false;
+       state.error = action.payload
     })
 }
 })

@@ -1,7 +1,7 @@
 import User from "../../models/User.js";
 import { generateOtp, sendOtpEmail } from "../../utils/emailService.js";
 import { ErrorFactory } from "../../utils/errors.js";
-import { generateUserToken } from "../../utils/jwt.js";
+import { generateResetToken, generateUserToken, verifyResetToken } from "../../utils/jwt.js";
 import logger from "../../utils/logger.js";
 
 class AuthService{
@@ -103,6 +103,90 @@ static async login(data){
     token
   }
 }
+
+static async forgotPassword(data){
+  const {email} = data;
+  const user = await User.findOne({email});
+ 
+  if(!user){
+      throw ErrorFactory.notFound("User not found")
+  }
+  const otpDetails = generateOtp('PASSWORD_RESET');
+
+  user.otpDetails = otpDetails;
+  await user.save()
+  const sent = await sendOtpEmail(user,otpDetails.code)
+
+  if(!sent){
+    throw ErrorFactory.generic("Failed to send OTP email. Please try again later.",
+    500)
+  }
+  return {
+    user:user._id,
+    purpose:user.otpDetails.purpose
+  }
+
+
+}
+
+static async verifyResetPasswordOtp(data){
+  const {userId,otp,purpose} = data;
+
+  const user = await User.findById(userId);
+  if(!user){
+    throw ErrorFactory.notFound("User not found")
+  }
+  if(!user.otpDetails){
+    throw ErrorFactory.validation("Invalid otp request")
+  }
+  if(user.otpDetails.purpose !== purpose){
+   throw ErrorFactory.validation("Invalid Purpose request")
+  }
+  if(Date.now()>user.otpDetails.expiresAt){
+    throw ErrorFactory.validation("Otp is exprired")
+  }
+  const isValidOtp = await user.compareOtp(otp);
+  if(!isValidOtp){
+    throw ErrorFactory.validation("Invalid OTP")
+  }
+  user.otpDetails = undefined;
+  await user.save();
+  
+  const resetToken = generateResetToken({
+    id:user._id,
+    email:user.email,
+    purpose:'PASSWORD_RESET'
+  });
+  return{
+  
+    resetToken
+  }
+
+}
+static async resetPassword(data){
+  const {resetToken,newPassword} = data;
+   if(!resetToken || !newPassword){
+    throw ErrorFactory.validation("Reset token and new password are required")
+   }
+
+ const decoded = verifyResetToken(resetToken);
+ if(!decoded || decoded.purpose !== 'PASSWORD_RESET'){
+  throw ErrorFactory.validation("Invalid request")
+ }
+
+ const user = await User.findById(decoded.id);
+ if(!user){
+  throw ErrorFactory.notFound("User not found")
+ }
+ user.password = newPassword;
+ await user.save()
+ return{
+  message:'Password reset successFull'
+ }
+}
+
+
+
 }
 
 export default AuthService
