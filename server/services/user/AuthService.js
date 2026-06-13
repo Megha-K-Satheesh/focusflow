@@ -185,7 +185,31 @@ static async resetPassword(data){
  }
 }
 
+static async resentOtp(data){
+  const {userId,purpose} = data;
+  if(!userId) {
+    throw ErrorFactory.validation("User Id is required")
+  }
+  const user = await User.findById(userId);
+  if(!user){
+    throw ErrorFactory.notFound("User is notfound")
+  }
+  if(purpose === 'EMAIL_VERIFICATION' && user.isVerified){
+    throw ErrorFactory.conflict('Email already verified');
+  }
 
+  const otpDetails = generateOtp(purpose);
+
+    user.otpDetails = otpDetails;
+    await user.save();
+     const sent = await sendOtpEmail(user, otpDetails.code);
+if (!sent) {
+  throw ErrorFactory.generic("Failed to send OTP email");
+}
+  return{
+    userId:user._id
+  }
+}
 
 }
 

@@ -192,7 +192,7 @@ function Register() {
             type="button"
             className="text-purple-600 font-medium hover:underline"
           >
-            Login
+           Sign In
           </button>
           </Link>
         </p>

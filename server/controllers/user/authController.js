@@ -55,5 +55,11 @@ static resetPassword = asyncHandler(async(req,res)=>{
   const result = await AuthService.resetPassword(req.body);
   return ResponseHandler.success(res,"Reset Password successfull",result)
 })
+static resendOtp = asyncHandler(async(req,res)=>{
+    const response = await AuthService.resentOtp(req.body);
+    return ResponseHandler.success(res,
+    'OTP verified successfully',
+    response)
+})
 }
 export default AuthController

@@ -106,12 +106,14 @@ Welcome Back </h1>
 
         {/* Forgot Password */}
         <div className="flex justify-end">
+          <Link to='/forgot-password'>
           <button
             type="button"
             className="text-sm text-purple-600 hover:underline"
           >
             Forgot Password?
           </button>
+          </Link>
         </div>
          
         <button
@@ -130,7 +132,7 @@ Welcome Back </h1>
           type="button"
           className="text-purple-600 font-medium hover:underline"
         >
-          {loading ? "Logging in..." : "Login"}
+          Sing Up
         </button>
            </Link>
       </p>

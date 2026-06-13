@@ -69,12 +69,29 @@ export const resetPassword = createAsyncThunk("auth/resetPassword",async(data,th
   }
 })
 
+
+export const resendOtp = createAsyncThunk(
+  "auth/resendOtp",
+  async (data, thunkAPI) => {
+    try {
+      const response = await authService.resendOtp(data);
+      return response.data.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to resend OTP"
+      );
+    }
+  }
+);
+
+
 const token = localStorage.getItem('token')
 const initialState = {
   user: null,
   userId: localStorage.getItem("otpUserId") || null,
   isOtpSent: false,
   loading: false,
+ resendLoading: false,
   error: null,
   isAuthenticated:!!token
 };
@@ -200,6 +217,21 @@ const authSlice = createSlice({
        state.loading = false;
        state.error = action.payload
     })
+    .addCase(resendOtp.pending, (state) => {
+        state.resendLoading = true;
+        state.error = null;
+      })
+
+      .addCase(resendOtp.fulfilled, (state) => {
+        state.resendLoading = false;
+        state.error = null;
+      })
+
+      .addCase(resendOtp.rejected, (state, action) => {
+        
+        state.resendLoading = false;
+        state.error = action.payload;
+      })
 }
 })
 export const {  logout } = authSlice.actions;

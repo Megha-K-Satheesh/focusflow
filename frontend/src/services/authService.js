@@ -20,6 +20,9 @@ export const authService = {
   resetPassword(data) {
     return apiClient.post('/auth/reset-password', data);
   },
+  resendOtp(data) {
+    return apiClient.post('/auth/resend-otp', data);
+  },
 
  
 };

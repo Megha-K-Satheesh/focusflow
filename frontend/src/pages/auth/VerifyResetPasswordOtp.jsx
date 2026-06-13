@@ -1,13 +1,13 @@
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { verifyResetPasswordOtp } from "../../redux/slices/user/authSlice";
+import { resendOtp, verifyResetPasswordOtp } from "../../redux/slices/user/authSlice";
 import { showError, showSuccess } from "../../utils/toast";
 
 function ResetPasswordOtp() {
   const dispatch = useDispatch();
  const navigate = useNavigate()
- const { loading } = useSelector((state) => state.auth);
+ const { loading,  resendLoading } = useSelector((state) => state.auth);
   const {
     register,
     handleSubmit,
@@ -27,11 +27,29 @@ function ResetPasswordOtp() {
       ).unwrap();
 
       showSuccess("OTP Verified Successfully");
-      navigate('/reset-password')
+      navigate('/reset-password',{replace:true})
     } catch (err) {
       showError(err);
     }
   };
+
+const handleResendOtp = async () => {
+  try {
+     
+    await dispatch(
+      
+      resendOtp({
+        userId,
+        purpose: "PASSWORD_RESET",
+      })
+    ).unwrap();
+
+    showSuccess("OTP sent successfully");
+  } catch (error) {
+    showError(error);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-200 via-purple-50 to-violet-200 px-4">
@@ -82,8 +100,11 @@ function ResetPasswordOtp() {
 
         <p className="text-sm text-gray-500 mt-6">
           Didn’t receive OTP?{" "}
-          <button className="text-purple-600 font-medium hover:underline">
-            Resend
+          <button
+          type="button"
+          onClick={handleResendOtp}
+          className="text-purple-600 font-medium hover:underline">
+              {resendLoading ? "Sending..." : "Resend"}
           </button>
         </p>
 
