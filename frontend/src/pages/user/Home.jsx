@@ -1,13 +1,20 @@
 
 
-function Home (){
+
+  function Home (){
 
 
-  return(
-    <>
-    
-    <h1>Home</h1>
-    </>
-  )
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100">
+
+   Home
+
+    </div>
+  );
 }
+
+
 export default Home;
+
+

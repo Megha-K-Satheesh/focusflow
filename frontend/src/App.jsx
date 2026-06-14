@@ -4,10 +4,11 @@ import './App.css';
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Login from "./pages/auth/Login";
 import Register from './pages/auth/Register';
+import ResetPassword from "./pages/auth/ResetPassword";
 import VerifyOtp from "./pages/auth/VerifyOtp";
 import ResetPasswordOtp from "./pages/auth/VerifyResetPasswordOtp";
+import CreateStudyPlan from "./pages/user/CreateStudyPlan";
 import Home from "./pages/user/Home";
-import ResetPassword from "./pages/auth/ResetPassword";
 function App() {
 
 
@@ -21,6 +22,8 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword/>} />
       <Route path="/verify-reset-password-otp" element={<ResetPasswordOtp/>} />
       <Route path="/reset-password" element={<ResetPassword/>} />
+      <Route path="/create-study-plan" element={<CreateStudyPlan/>} />
+     
     </Routes>
           <ToastContainer />
     </>
