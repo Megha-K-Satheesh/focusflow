@@ -14,5 +14,6 @@ router.post(
   authenticateUser,
  StudyPlanController.createStudyPlan
 );
-
+router.get("/get-study-plan",authenticateUser,StudyPlanController.getStudyPlan)
+router.patch("/mark-task-completed/:taskId",authenticateUser,StudyPlanController.markTaskCompleted)
 export default router;

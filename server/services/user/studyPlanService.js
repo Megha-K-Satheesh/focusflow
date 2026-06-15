@@ -58,6 +58,108 @@ class StudyPlanService {
 
     return studyPlan;
   }
+
+  static async getStudyPlan(userId){
+      if(!userId){
+        throw ErrorFactory.validation("UserId not provided");
+
+      }
+      const studyPlan = await StudyPlan.findOne({
+        userId,
+        status:"active"
+      })
+      if(!studyPlan){
+         throw ErrorFactory.notFound("StudyPlan not found")
+      }
+
+       let totalTasks = 0;
+  let completedTasks = 0;
+
+  studyPlan.days.forEach((day) => {
+    totalTasks += day.tasks.length;
+
+    completedTasks += day.tasks.filter(
+      (task) => task.completed
+    ).length;
+  });
+
+  const progress =
+    totalTasks === 0
+      ? 0
+      : Math.round((completedTasks / totalTasks) * 100);
+
+      
+  return {
+    studyPlan,
+    progress,
+    completedTasks,
+    totalTasks,
+  };
+  }
+  static async markTaskCompleted(userId,taskId){
+    if(!userId && !taskId){
+      throw ErrorFactory.validation("userId and taskId required");
+    }
+
+    const studyPlan  = await StudyPlan.findOne({
+      userId,
+      status:"active"
+    })
+    if(!studyPlan){
+      throw ErrorFactory.notFound("Study Plan notFound");
+    }
+       let taskFound = false;
+    console.log("Task ID from request:", taskId);
+    for (const day of studyPlan.days) {
+      for (const task of day.tasks) {
+        if (task._id.toString() === taskId) {
+          task.completed = !task.completed;
+
+        task.completedAt = task.completed
+          ? new Date()
+          : null;
+
+
+          taskFound = true;
+          break;
+        }
+      }
+
+      if (taskFound) break;
+    }
+       if (!taskFound) {
+      throw ErrorFactory.notFound("Task notFound")
+    }
+
+    await studyPlan.save();
+
+    let totalTasks = 0;
+    let completedTasks = 0;
+
+    studyPlan.days.forEach((day) => {
+      totalTasks += day.tasks.length;
+
+      completedTasks += day.tasks.filter(
+        (task) => task.completed
+      ).length;
+    });
+
+    const progress =
+      totalTasks === 0
+        ? 0
+        : Math.round(
+            (completedTasks / totalTasks) * 100
+          );
+
+    return {      
+      studyPlan,
+      progress,
+      completedTasks,
+      totalTasks,
+    };
+
+
+  }
 }
 
 export default StudyPlanService

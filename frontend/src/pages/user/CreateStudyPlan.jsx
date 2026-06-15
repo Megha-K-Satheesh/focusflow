@@ -10,6 +10,7 @@ import {
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
+import Footer from "../../components/ui/Footer";
 import Navbar from "../../components/ui/Navbar";
 import { createStudyPlan } from "../../redux/slices/user/studyPlanSlice";
 import { showError, showSuccess } from "../../utils/toast";
@@ -369,6 +370,7 @@ function CreateStudyPlan() {
         </div>
       </div>
     </div>
+    <Footer/>
     </>
   );
 }

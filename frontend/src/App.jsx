@@ -9,6 +9,7 @@ import VerifyOtp from "./pages/auth/VerifyOtp";
 import ResetPasswordOtp from "./pages/auth/VerifyResetPasswordOtp";
 import CreateStudyPlan from "./pages/user/CreateStudyPlan";
 import Home from "./pages/user/Home";
+import ViewStudyPlan from "./pages/user/ViewStudyPlan";
 function App() {
 
 
@@ -23,6 +24,7 @@ function App() {
       <Route path="/verify-reset-password-otp" element={<ResetPasswordOtp/>} />
       <Route path="/reset-password" element={<ResetPassword/>} />
       <Route path="/create-study-plan" element={<CreateStudyPlan/>} />
+      <Route path="/view-study-plan"  element={<ViewStudyPlan/>} />
      
     </Routes>
           <ToastContainer />
