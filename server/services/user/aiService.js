@@ -81,3 +81,100 @@ Format:
 
   return JSON.parse(cleanContent);
 };
+
+
+
+export const generateInterviewFromAI = async (data) => {
+  const prompt = `
+You are an expert technical interviewer.
+
+Generate a mock interview.
+
+Interview Type: ${data.interviewType}
+
+Role: ${data.role || "Current Study Plan"}
+
+Level: ${data.level}
+
+Mode: ${data.mode}
+
+Question Count: ${data.questionCount}
+
+Topics:
+${data.topics?.join("\n") || "Generate based on role"}
+
+Rules:
+- Questions should match the difficulty level.
+- Include practical interview questions.
+- Include coding questions if mode is coding or mixed.
+- Include behavioral questions when appropriate.
+- Questions must be realistic interview questions.
+- Avoid duplicate questions.
+- Return ONLY raw JSON.
+- No markdown.
+- No backticks.
+- No explanation.
+-IMPORTANT:
+
+The "type" field MUST be exactly one of:
+
+- theory
+- coding
+- behavioral
+
+Do NOT use any other value.
+Do NOT use:
+- problem_solving
+- technical
+- aptitude
+- mcq
+- practical
+- scenario
+
+Only use theory, coding, or behavioral.
+Format:
+
+{
+  "questions": [
+    {
+      "questionId": "q1",
+      "topic": "JavaScript",
+      "type": "theory",
+      "difficulty": "Intermediate",
+      "question": "What is a closure in JavaScript?"
+    }
+  ]
+}
+`;
+
+  const response = await axios.post(
+    `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    {
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: prompt,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const content =
+    response.data.candidates[0].content.parts[0].text;
+
+  const cleanContent = content
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
+
+  return JSON.parse(cleanContent);
+};
