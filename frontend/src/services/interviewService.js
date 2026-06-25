@@ -1,0 +1,36 @@
+import apiClient from "../utils/apiClient";
+
+export const interviewService = {
+  startInterview(data) {
+    return apiClient.post(
+      "/interviews/start-interview",
+      data
+    );
+  },
+
+  transcribeAudio(formData) {
+    return apiClient.post(
+      "/interviews/transcribe",
+      formData,
+      {
+        headers: {
+          "Content-Type":
+            "multipart/form-data",
+        },
+      }
+    );
+  },
+  getInterview(interviewId) {
+    return apiClient.get(
+      `/interviews/${interviewId}`
+    );
+  },
+
+  getNextQuestion(interviewId) {
+    return apiClient.get(
+      `/interviews/${interviewId}/next`
+    );
+  },
+
+  
+};

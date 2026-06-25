@@ -1,4 +1,5 @@
 import express from "express";
+import { upload } from "../config/upload.js";
 import InterviewController from "../controllers/user/interviewController.js";
 import authenticateUser from "../middleware/authenticateUser.js";
 
@@ -8,6 +9,23 @@ router.post(
   "/start-interview",
   authenticateUser,
   InterviewController.startInterview
+);
+router.get(
+  "/:interviewId",
+  authenticateUser,
+  InterviewController.getInterview
+);
+
+router.get(
+  "/:interviewId/next",
+  authenticateUser,
+  InterviewController.getNextQuestion
+);
+
+router.post(
+  "/transcribe",
+  upload.single("audio"),
+  InterviewController.transcribeAudio
 );
 
 

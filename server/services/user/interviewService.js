@@ -1,7 +1,7 @@
 import Interview from "../../models/Interview.js";
 import StudyPlan from "../../models/StudyPlan.js";
 import { ErrorFactory } from "../../utils/errors.js";
-import { generateInterviewFromAI } from "./aiService.js";
+import { generateInterviewFromAI, generateTranscriptFromAI } from "./aiService.js";
 
 class InterviewService {
   static async startInterview(userId, data) {
@@ -129,6 +129,85 @@ class InterviewService {
         interview.totalQuestions,
     };
   }
+  static async transcribeAudio(file) {
+  if (!file) {
+    throw ErrorFactory.validation(
+      "Audio file is required"
+    );
+  }
+
+  const transcript =
+    await generateTranscriptFromAI(file);
+
+  return {
+    transcript,
+  };
+}
+static async getInterview(interviewId, userId) {
+  const interview = await Interview.findOne({
+    _id: interviewId,
+    userId,
+  });
+
+  if (!interview) {
+    throw ErrorFactory.notFound(
+      "Interview not found"
+    );
+  }
+
+  return {
+    interviewId: interview._id,
+    currentQuestion:
+      interview.questions[
+        interview.currentQuestionIndex
+      ],
+    questionNumber:
+      interview.currentQuestionIndex + 1,
+    totalQuestions:
+      interview.totalQuestions,
+  };
+}
+
+static async getNextQuestion(
+  interviewId,
+  userId
+) {
+  const interview = await Interview.findOne({
+    _id: interviewId,
+    userId,
+  });
+
+  if (!interview) {
+    throw ErrorFactory.notFound(
+      "Interview not found"
+    );
+  }
+
+  if (
+    interview.currentQuestionIndex >=
+    interview.questions.length - 1
+  ) {
+    return {
+      completed: true,
+    };
+  }
+
+  interview.currentQuestionIndex += 1;
+
+  await interview.save();
+
+  return {
+    interviewId: interview._id,
+    currentQuestion:
+      interview.questions[
+        interview.currentQuestionIndex
+      ],
+    questionNumber:
+      interview.currentQuestionIndex + 1,
+    totalQuestions:
+      interview.totalQuestions,
+  };
+}
 }
 
 export default InterviewService;

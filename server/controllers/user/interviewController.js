@@ -17,7 +17,55 @@ class InterviewController {
     );
   });
 
- 
+
+static getInterview = asyncHandler(
+  async (req, res) => {
+    const result =
+      await InterviewService.getInterview(
+        req.params.interviewId,
+        req.user.id
+      );
+
+    return ResponseHandler.success(
+      res,
+      "Interview fetched successfully",
+      result
+    );
+  }
+);
+
+static getNextQuestion = asyncHandler(
+  async (req, res) => {
+    const result =
+      await InterviewService.getNextQuestion(
+        req.params.interviewId,
+        req.user.id
+      );
+
+    return ResponseHandler.success(
+      res,
+      "Next question fetched successfully",
+      result
+    );
+  }
+);
+
+
+
+   static transcribeAudio = asyncHandler(
+    async (req, res) => {
+      const result =
+        await InterviewService.transcribeAudio(
+          req.file
+        );
+
+      return ResponseHandler.success(
+        res,
+        "Audio transcribed successfully",
+        result
+      );
+    }
+  );
 
  
 }

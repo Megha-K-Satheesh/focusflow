@@ -83,7 +83,6 @@ Format:
 };
 
 
-
 export const generateInterviewFromAI = async (data) => {
   const prompt = `
 You are an expert technical interviewer.
@@ -177,4 +176,50 @@ Format:
     .trim();
 
   return JSON.parse(cleanContent);
+};
+
+export const generateTranscriptFromAI = async (
+  file
+) => {
+  const base64Audio =
+    file.buffer.toString("base64");
+
+  const response = await axios.post(
+    `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    {
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              inlineData: {
+                mimeType: file.mimetype,
+                data: base64Audio,
+              },
+            },
+            {
+              text: `
+Convert this audio recording into text.
+
+Rules:
+- Return only the spoken text.
+- No explanations.
+- No markdown.
+- No formatting.
+- Preserve the original wording.
+              `,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return response.data.candidates[0]
+    .content.parts[0].text;
 };
