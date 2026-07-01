@@ -1,25 +1,31 @@
 
 import {
+  ArrowLeft,
   ArrowRight,
   Mic,
   MicOff,
   Save,
-  Send,
+  Send
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import CodeEditor from "../../components/ui/CodeEditor";
 import { useMediaRecorder } from "../../hooks/useMediaRecorder";
 import {
   getInterview,
   getNextQuestion,
-  transcribeAudio,
+  getPreviousQuestion,
+  submitAnswer,
+  transcribeAudio
 } from "../../redux/slices/user/interviewSlice";
+import { showError, showSuccess } from "../../utils/toast";
 
 function InterviewSession() {
   const dispatch = useDispatch();
   const { interviewId } = useParams();
+  const [code,setCode] = useState("")
 
   const {
     register,
@@ -39,6 +45,14 @@ function InterviewSession() {
     loading,
     error: transcriptionError,
   } = useSelector((state) => state.interview);
+const isSubmitted = currentQuestion?.submitted;
+const status = currentQuestion?.status;
+const isLastQuestion = questionNumber >= totalQuestions;
+const isEvaluated = status === "evaluated";
+const isAnswered = status === "answered";
+
+const isLocked = isSubmitted || isEvaluated;
+
 
   const {
     isRecording,
@@ -50,11 +64,13 @@ function InterviewSession() {
     clearRecording
   } = useMediaRecorder();
 
+
   useEffect(() => {
     if (interviewId) {
       dispatch(getInterview(interviewId));
     }
   }, [dispatch, interviewId]);
+
 
   useEffect(() => {
     if (!audioBlob) return;
@@ -62,53 +78,106 @@ function InterviewSession() {
     dispatch(transcribeAudio(audioBlob));
   }, [audioBlob, dispatch]);
 
+  
   useEffect(() => {
     if (transcript) {
       setValue("answer", transcript);
     }
   }, [transcript, setValue]);
 
-  const onSubmit = (data) => {
-    console.log("Final Answer:", data.answer);
-  };
+
+const onSubmit = async (data) => {
+  if (currentQuestion?.type === "coding" && !code?.trim()) {
+    showError("Code is required for coding questions");
+    return;
+  }
+
+  try {
+    await dispatch(
+      submitAnswer({
+        interviewId,
+        data: {
+          answer: data.answer || "",
+          code: code || "",
+          language: currentQuestion?.language || "javascript",
+        },
+      })
+    ).unwrap();
+
+    showSuccess("Answer submitted successfully");
+  } catch (err) {
+    showError(err || "Submit failed");
+  }
+};
 
   const handleNextQuestion = () => {
     dispatch(getNextQuestion(interviewId));
     setValue("answer", "");
+      setCode("");
       clearRecording();
   };
+
+const handlePreviousQuestion = () => {
+  dispatch(getPreviousQuestion(interviewId));
+  setValue("answer", "");
+    setCode("");
+  clearRecording();
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-50 to-violet-100 px-6 py-10">
       <div className="max-w-5xl mx-auto">
-        <div className="bg-white border border-purple-100 rounded-3xl shadow-xl p-6 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-purple-800">
-                AI Interview Session
-              </h1>
-
-              <p className="text-gray-500 mt-1">
-                Practice and improve your interview skills
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="px-4 py-2 rounded-xl bg-purple-100 text-purple-700 font-semibold">
-                Question {questionNumber || 1} of{" "}
-                {totalQuestions || 1}
-              </div>
-
-              <div className="px-4 py-2 rounded-xl bg-violet-100 text-violet-700 font-semibold">
-                {currentQuestion?.topic ||
-                  "Interview"}
-              </div>
-            </div>
-          </div>
-        </div>
-
         
+<div className="bg-white border border-purple-100 rounded-2xl shadow-sm p-5 mb-6 space-y-4">
 
+
+  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+ 
+    <div>
+      <h1 className="text-2xl md:text-3xl font-bold text-purple-800">
+        AI Interview Session
+      </h1>
+      <p className="text-gray-500 text-sm mt-1">
+        Practice and improve your interview skills
+      </p>
+    </div>
+
+   
+    <div className="flex gap-3 flex-wrap">
+      <div className="px-3 py-1 rounded-lg bg-purple-100 text-purple-700 text-sm font-medium">
+        Question {questionNumber || 1} / {totalQuestions || 1}
+      </div>
+
+      <div className="px-3 py-1 rounded-lg bg-violet-100 text-violet-700 text-sm font-medium">
+        {currentQuestion?.topic || "Interview"}
+      </div>
+    </div>
+  </div>
+
+  <div className="flex gap-2 flex-wrap text-xs">
+
+    {!isSubmitted && (
+      <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+        Not Submitted
+      </span>
+    )}
+
+    {isSubmitted && isAnswered && !isEvaluated && (
+      <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">
+        Submitted
+      </span>
+    )}
+
+    {isEvaluated && (
+      <span className="px-2 py-1 rounded-full bg-green-100 text-green-700">
+        Evaluated
+      </span>
+    )}
+
+  </div>
+
+</div>
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div
@@ -140,32 +209,44 @@ function InterviewSession() {
         </div>
 
         <div className="bg-white border border-purple-100 rounded-3xl shadow-lg p-5 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            {!isRecording ? (
-              <button
-                type="button"
-                onClick={startRecording}
-                className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-xl font-medium transition"
-              >
-                <Mic size={18} />
-                Start Recording
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={stopRecording}
-                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-5 py-3 rounded-xl font-medium transition"
-              >
-                <MicOff size={18} />
-                Stop Recording
-              </button>
-            )}
-          </div>
+  <div>
+    {!isRecording ? (
+      <button
+        type="button"
+        onClick={startRecording}
+        disabled={isLocked}
+        className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition
+          ${isLocked 
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed" 
+            : "bg-green-500 hover:bg-green-600 text-white"
+          }
+        `}
+      >
+        <Mic size={18} />
+        Start Recording
+      </button>
+    ) : (
+      <button
+        type="button"
+        onClick={stopRecording}
+        disabled={isLocked}
+        className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition
+          ${isLocked 
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed" 
+            : "bg-red-500 hover:bg-red-600 text-white"
+          }
+        `}
+      >
+        <MicOff size={18} />
+        Stop Recording
+      </button>
+    )}
+  </div>
 
-          <p className="text-sm text-gray-500">
-            Record your answer and convert it to text automatically
-          </p>
-        </div>
+  <p className="text-sm text-gray-500">
+    Record your answer and convert it to text automatically
+  </p>
+</div>
 
         {audioUrl && (
           <div className="bg-white border border-purple-100 rounded-3xl shadow-lg p-5 mb-6">
@@ -211,29 +292,69 @@ function InterviewSession() {
           <textarea
             {...register("answer")}
             rows={10}
-            className="w-full border border-gray-200 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+            disabled={isLocked}
+            className={`w-full border border-gray-200 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none  ${isLocked ? " cursor-not-allowed" : ""}`}
             placeholder="Speak or type your answer here..."
           />
 
-          <div className="flex justify-end gap-3 mt-5">
-            <button
-              type="button"
-              onClick={handleNextQuestion}
-              disabled={loading}
-              className="flex items-center gap-2 border border-purple-200 text-purple-700 px-6 py-3 rounded-xl font-semibold hover:bg-purple-50 transition disabled:opacity-50"
-            >
-              <ArrowRight size={18} />
-              Next Question
-            </button>
 
-            <button
-              type="submit"
-              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition"
-            >
-              <Send size={18} />
-              Submit Answer
-            </button>
-          </div>
+
+<div className="mt-6">
+  <h3 className="font-semibold text-purple-800 mb-3">
+    Code 
+  </h3>
+
+  <CodeEditor
+    language={currentQuestion?.language || "javascript"}
+   
+    value={code}
+    onChange={setCode}
+  readOnly={isLocked}
+  />
+</div>
+
+
+
+
+
+
+          <div className="flex justify-between mt-5">
+  <button
+    type="button"
+    onClick={handlePreviousQuestion}
+    disabled={loading || questionNumber === 1}
+    className="flex items-center gap-2 border border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition disabled:opacity-50"
+  >
+    <ArrowLeft size={18} />
+    Previous
+  </button>
+
+  <div className="flex gap-3">
+    <button
+      type="button"
+      onClick={handleNextQuestion}
+       disabled={loading || isLastQuestion}
+      className="flex items-center gap-2 border border-purple-200 text-purple-700 px-6 py-3 rounded-xl font-semibold hover:bg-purple-50 transition disabled:opacity-50"
+    >
+      <ArrowRight size={18} />
+      Next Question
+    </button>
+
+   
+    <button
+  type="submit"
+  disabled={loading || isSubmitted}
+  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition 
+    ${isSubmitted 
+      ? "bg-gray-300 text-gray-500 cursor-not-allowed" 
+      : "bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:opacity-90"
+    }`}
+>
+  <Send size={18} />
+  {isSubmitted ? "Submitted" : "Submit Answer"}
+</button>
+  </div>
+</div>
         </form>
       </div>
     </div>
@@ -241,3 +362,4 @@ function InterviewSession() {
 }
 
 export default InterviewSession;
+

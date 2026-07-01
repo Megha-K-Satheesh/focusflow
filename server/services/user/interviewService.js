@@ -154,17 +154,18 @@ static async getInterview(interviewId, userId) {
       "Interview not found"
     );
   }
-
+const currentQuestion =
+  interview.questions[
+    interview.currentQuestionIndex
+  ];
   return {
     interviewId: interview._id,
-    currentQuestion:
-      interview.questions[
-        interview.currentQuestionIndex
-      ],
+    currentQuestion,
     questionNumber:
       interview.currentQuestionIndex + 1,
     totalQuestions:
       interview.totalQuestions,
+       
   };
 }
 
@@ -188,24 +189,147 @@ static async getNextQuestion(
     interview.questions.length - 1
   ) {
     return {
-      completed: true,
+      completed: true, 
+      
     };
   }
 
   interview.currentQuestionIndex += 1;
 
   await interview.save();
-
+const currentQuestion =
+  interview.questions[
+    interview.currentQuestionIndex
+  ];
   return {
     interviewId: interview._id,
-    currentQuestion:
-      interview.questions[
-        interview.currentQuestionIndex
-      ],
+    currentQuestion,
     questionNumber:
       interview.currentQuestionIndex + 1,
     totalQuestions:
       interview.totalQuestions,
+      
+  };
+}
+
+
+
+static async getPreviousQuestion(
+  interviewId,
+  userId
+) {
+  const interview = await Interview.findOne({
+    _id: interviewId,
+    userId,
+  });
+
+  if (!interview) {
+    throw ErrorFactory.notFound(
+      "Interview not found"
+    );
+  }
+
+  if (interview.currentQuestionIndex === 0) {
+    const currentQuestion =
+      interview.questions[0];
+
+    return {
+      interviewId: interview._id,
+      currentQuestion,
+      questionNumber: 1,
+      totalQuestions:
+        interview.totalQuestions,
+      isFirstQuestion: true,
+   
+    };
+  }
+
+  interview.currentQuestionIndex -= 1;
+
+  await interview.save();
+
+  const currentQuestion =
+    interview.questions[
+      interview.currentQuestionIndex
+    ];
+
+  return {
+    interviewId: interview._id,
+    currentQuestion,
+    questionNumber:
+      interview.currentQuestionIndex + 1,
+    totalQuestions:
+      interview.totalQuestions,
+    isFirstQuestion:
+      interview.currentQuestionIndex === 0,
+   
+  };
+}
+static async submitAnswer(
+  interviewId,
+  userId,
+  data
+) {
+  const {
+    answer,
+    code,
+    language,
+  } = data;
+
+  const interview = await Interview.findOne({
+    _id: interviewId,
+    userId,
+  });
+
+  if (!interview) {
+    throw ErrorFactory.notFound(
+      "Interview not found"
+    );
+  }
+
+  const question =
+    interview.questions[
+      interview.currentQuestionIndex
+    ];
+
+  if (!question) {
+    throw ErrorFactory.notFound(
+      "Question not found"
+    );
+  }
+
+  if (
+    question.type === "theory" &&
+    !answer?.trim()
+  ) {
+    throw ErrorFactory.validation(
+      "Answer is required"
+    );
+  }
+
+  if (
+    question.type === "coding" &&
+    !code?.trim()
+  ) {
+    throw ErrorFactory.validation(
+      "Code is required"
+    );
+  }
+
+  question.answer = answer || "";
+  question.code = code || "";
+  question.language = language || "";
+  question.status = "answered";
+question.submitted = true;
+  await interview.save();
+
+  return {
+    success: true,
+    status: question.status,
+    questionNumber:
+      interview.currentQuestionIndex + 1,
+    message:
+      "Answer submitted successfully.",
   };
 }
 }

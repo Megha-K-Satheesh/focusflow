@@ -31,6 +31,17 @@ export const interviewService = {
       `/interviews/${interviewId}/next`
     );
   },
+ getPreviousQuestion(interviewId) {
+    return apiClient.get(
+      `/interviews/${interviewId}/previous`
+    );
+  }
+  ,
+  submitAnswer(interviewId, data) {
+  return apiClient.post(
+    `/interviews/${interviewId}/submit`,
+    data
+  );
+},
 
-  
 };

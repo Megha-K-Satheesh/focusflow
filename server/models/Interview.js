@@ -10,13 +10,16 @@ const answerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+  
   type: {
     type: String,
-    enum: ["theory", "coding", "behavioral"],
+    enum: ["theory", "coding"],
     required: true,
   },
-
+expectedAnswer: {
+  type: String,
+  default: "",
+},
   answer: {
     type: String,
     default: "",
@@ -46,6 +49,31 @@ const answerSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+   submitted: {
+    type: Boolean,
+    default: false,
+  },
+  status: {
+    type: String,
+    enum: ["pending", "answered", "evaluated"],
+    default: "pending",
+  },
+
+    aiEvaluation: {
+    strengths: {
+      type: [String],
+      default: [],
+    },
+    improvements: {
+      type: [String],
+      default: [],
+    },
+    explanation: {
+      type: String,
+      default: "",
+    },
+  },
+
 });
 
 const interviewSchema = new mongoose.Schema(

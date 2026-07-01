@@ -108,6 +108,46 @@ export const transcribeAudio = createAsyncThunk(
   }
 );
 
+export const getPreviousQuestion =
+  createAsyncThunk(
+    "interview/getPreviousQuestion",
+    async (interviewId, thunkAPI) => {
+      try {
+        const response =
+          await interviewService.getPreviousQuestion(
+            interviewId
+          );
+
+        return response.data.data;
+      } catch (error) {
+        return thunkAPI.rejectWithValue(
+          error.response?.data?.message ||
+            "Failed to fetch previous question"
+        );
+      }
+    }
+  );
+export const submitAnswer = createAsyncThunk(
+  "interview/submitAnswer",
+  async ({ interviewId, data }, thunkAPI) => {
+    try {
+      const response =
+        await interviewService.submitAnswer(
+          interviewId,
+          data
+        );
+
+      return response.data.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to submit answer"
+      );
+    }
+  }
+);
+
+
 const interviewSlice = createSlice({
   name: "interview",
   initialState,
@@ -263,7 +303,55 @@ const interviewSlice = createSlice({
           state.loading = false;
           state.error = action.payload;
         }
-      );
+      )
+      .addCase(
+  getPreviousQuestion.pending,
+  (state) => {
+    state.loading = true;
+    state.error = null;
+  }
+)
+
+.addCase(
+  getPreviousQuestion.fulfilled,
+  (state, action) => {
+    state.loading = false;
+
+    state.currentQuestion =
+      action.payload.currentQuestion;
+
+    state.questionNumber =
+      action.payload.questionNumber;
+
+    state.totalQuestions =
+      action.payload.totalQuestions;
+  }
+)
+
+.addCase(
+  getPreviousQuestion.rejected,
+  (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  }
+)
+
+.addCase(submitAnswer.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+
+.addCase(submitAnswer.fulfilled, (state, action) => {
+  state.loading = false;
+
+  
+  state.currentQuestion = action.payload.currentQuestion;
+})
+
+.addCase(submitAnswer.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+})
   },
 });
 

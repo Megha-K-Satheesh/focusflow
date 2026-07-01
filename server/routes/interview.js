@@ -27,6 +27,15 @@ router.post(
   upload.single("audio"),
   InterviewController.transcribeAudio
 );
-
+router.get(
+  "/:interviewId/previous",
+  authenticateUser,
+  InterviewController.getPreviousQuestion
+);
+router.post(
+  "/:interviewId/submit",
+  authenticateUser,
+  InterviewController.submitAnswer
+)
 
 export default router;

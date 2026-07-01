@@ -50,7 +50,19 @@ static getNextQuestion = asyncHandler(
   }
 );
 
+  static getPreviousQuestion = asyncHandler(async (req, res) => {
+    const result =
+      await InterviewService.getPreviousQuestion(
+        req.params.interviewId,
+        req.user.id
+      );
 
+    return ResponseHandler.success(
+      res,
+      "Previous question fetched successfully",
+      result
+    );
+  });
 
    static transcribeAudio = asyncHandler(
     async (req, res) => {
@@ -66,7 +78,20 @@ static getNextQuestion = asyncHandler(
       );
     }
   );
+  
+static submitAnswer = asyncHandler(async (req, res) => {
+  const result = await InterviewService.submitAnswer(
+    req.params.interviewId,
+    req.user.id,
+    req.body
+  );
 
+  return ResponseHandler.success(
+    res,
+    "Answer submitted successfully",
+    result
+  );
+});
  
 }
 
