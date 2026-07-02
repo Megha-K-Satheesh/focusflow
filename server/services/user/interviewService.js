@@ -1,7 +1,7 @@
 import Interview from "../../models/Interview.js";
 import StudyPlan from "../../models/StudyPlan.js";
 import { ErrorFactory } from "../../utils/errors.js";
-import { generateInterviewFromAI, generateTranscriptFromAI } from "./aiService.js";
+import { evaluateSingleAnswerWithAI, generateInterviewFromAI, generateTranscriptFromAI } from "./aiService.js";
 
 class InterviewService {
   static async startInterview(userId, data) {
@@ -72,9 +72,21 @@ class InterviewService {
         questionCount: questionCount || 10,
       };
     }
+  let aiResponse;
 
-    const aiResponse =
-      await generateInterviewFromAI(aiPayload);
+try {
+  aiResponse = await generateInterviewFromAI(aiPayload);
+} catch (err) {
+  if (err.response?.status === 503) {
+    throw ErrorFactory.generic(
+      "AI service is temporarily busy. Please try again in a few seconds.",
+      503
+    );
+  }
+
+  throw err;
+}
+
 
     if (
       !aiResponse ||
@@ -265,16 +277,9 @@ static async getPreviousQuestion(
    
   };
 }
-static async submitAnswer(
-  interviewId,
-  userId,
-  data
-) {
-  const {
-    answer,
-    code,
-    language,
-  } = data;
+
+static async submitAnswer(interviewId, userId, data) {
+  const { answer, code, language } = data;
 
   const interview = await Interview.findOne({
     _id: interviewId,
@@ -282,56 +287,152 @@ static async submitAnswer(
   });
 
   if (!interview) {
-    throw ErrorFactory.notFound(
-      "Interview not found"
-    );
+    throw ErrorFactory.notFound("Interview not found");
   }
 
   const question =
-    interview.questions[
-      interview.currentQuestionIndex
-    ];
+    interview.questions[interview.currentQuestionIndex];
 
   if (!question) {
-    throw ErrorFactory.notFound(
-      "Question not found"
-    );
+    throw ErrorFactory.notFound("Question not found");
   }
 
-  if (
-    question.type === "theory" &&
-    !answer?.trim()
-  ) {
-    throw ErrorFactory.validation(
-      "Answer is required"
-    );
+  if (question.type === "theory" && !answer?.trim()) {
+    throw ErrorFactory.validation("Answer is required");
   }
 
-  if (
-    question.type === "coding" &&
-    !code?.trim()
-  ) {
-    throw ErrorFactory.validation(
-      "Code is required"
-    );
+  if (question.type === "coding" && !code?.trim()) {
+    throw ErrorFactory.validation("Code is required");
   }
 
   question.answer = answer || "";
   question.code = code || "";
   question.language = language || "";
   question.status = "answered";
-question.submitted = true;
+
+  const aiResult = await evaluateSingleAnswerWithAI({
+    question: question.question,
+    type: question.type,
+    answer,
+    code,
+    language,
+  });
+
+  question.score = aiResult.score || 0;
+  question.feedback = aiResult.feedback || "";
+  question.aiEvaluation = {
+    strengths: aiResult.strengths || [],
+    improvements: aiResult.improvements || [],
+    explanation: aiResult.explanation || "",
+  };
+
+  question.status = "evaluated";
+  question.submitted =true
+
   await interview.save();
 
   return {
     success: true,
     status: question.status,
-    questionNumber:
-      interview.currentQuestionIndex + 1,
-    message:
-      "Answer submitted successfully.",
+    score: question.score,
+    feedback: question.feedback,
+    questionNumber: interview.currentQuestionIndex + 1,
+    message: "Answer submitted and evaluated successfully",
   };
 }
+
+
+ static async getFeedback(interviewId, userId) {
+    const interview = await Interview.findOne({
+      _id: interviewId,
+      userId,
+    });
+
+    if (!interview) {
+      throw ErrorFactory.notFound("Interview not found");
+    }
+     
+
+  if (interview.status !== "completed") {
+    interview.status = "completed";
+    interview.completedAt = new Date();
+    await interview.save();
+  }
+    const questions = interview.questions;
+
+    const totalScore = questions.reduce(
+      (acc, q) => acc + (q.score || 0),
+      0
+    );
+
+    const evaluatedQuestions = questions.filter(
+      (q) => q.status === "evaluated"
+    );
+
+    const feedbackByQuestion = questions.map((q) => ({
+      questionId: q.questionId,
+      question: q.question,
+      type: q.type,
+      topic: q.topic,
+      answer: q.answer,
+      code: q.code,
+      score: q.score || 0,
+      feedback: q.feedback,
+      aiEvaluation: q.aiEvaluation || {
+        strengths: [],
+        improvements: [],
+        explanation: "",
+      },
+      status: q.status,
+    }));
+
+    const strengths = [];
+    const improvements = [];
+
+    questions.forEach((q) => {
+      if (q.aiEvaluation?.strengths?.length) {
+        strengths.push(...q.aiEvaluation.strengths);
+      }
+      if (q.aiEvaluation?.improvements?.length) {
+        improvements.push(...q.aiEvaluation.improvements);
+      }
+    });
+
+    const overallScore = questions.length
+      ? Math.round(totalScore / questions.length)
+      : 0;
+
+    const performanceLevel =
+      overallScore >= 8
+        ? "Excellent"
+        : overallScore >= 6
+        ? "Good"
+        : overallScore >= 4
+        ? "Average"
+        : "Needs Improvement";
+
+    return {
+      success: true,
+      interviewId: interview._id,
+      role: interview.role,
+      level: interview.level,
+      status: interview.status,
+
+      summary: {
+        overallScore,
+        totalQuestions: questions.length,
+        evaluatedQuestions: evaluatedQuestions.length,
+        performanceLevel,
+      },
+
+      insights: {
+        strengths: [...new Set(strengths)],
+        improvements: [...new Set(improvements)],
+      },
+
+      questions: feedbackByQuestion,
+    };
+  }
 }
 
 export default InterviewService;

@@ -119,7 +119,7 @@ The "type" field MUST be exactly one of:
 
 - theory
 - coding
-- behavioral
+
 
 Do NOT use any other value.
 Do NOT use:
@@ -130,7 +130,7 @@ Do NOT use:
 - practical
 - scenario
 
-Only use theory, coding, or behavioral.
+Only use theory, coding.
 Format:
 
 {
@@ -223,3 +223,106 @@ Rules:
   return response.data.candidates[0]
     .content.parts[0].text;
 };
+
+export const evaluateSingleAnswerWithAI = async (data) => {
+  const prompt = `
+You are a strict technical interviewer.
+Your job is to deeply evaluate a candidate's answer like in a real interview.
+Evaluate this answer.
+
+Question:
+${data.question}
+
+Type: ${data.type}
+
+Answer:
+${data.answer || ""}
+
+Code:
+${data.code || ""}
+
+Language:
+${data.language || ""}
+
+Return ONLY raw JSON.
+
+Format:
+{
+  "score": 0,
+  "feedback": "",
+  "strengths": [],
+  "improvements": [],
+  "explanation": ""
+}
+
+EVALUATION RULES:
+
+1. Be extremely strict but fair.
+2. If answer is empty or irrelevant → score must be 0-2.
+3. If partially correct → 3-6.
+4. If correct but not explained well → 6-8.
+5. Only perfect answers → 9-10.
+
+---
+
+FOR THEORY QUESTIONS:
+Evaluate:
+- conceptual understanding
+- correctness
+- clarity
+- completeness
+- missing key points
+
+FOR CODING QUESTIONS:
+Evaluate:
+- correctness of logic
+- edge cases handling
+- time & space complexity awareness
+- code structure
+- real-world usability
+
+---
+
+IMPORTANT:
+- If answer is weak, DO NOT fabricate strengths.
+- strengths must reflect REAL GOOD POINTS only.
+- improvements must be specific and actionable.
+
+---
+
+OUTPUT FORMAT (STRICT JSON ONLY):
+
+{
+  "score": number,
+  "feedback": "2-5 lines human readable interview feedback",
+  "strengths": ["specific strength 1", "specific strength 2"],
+  "improvements": ["specific improvement 1", "specific improvement 2"],
+  "explanation": "detailed technical breakdown of why this score was given"
+}
+
+---
+
+STYLE:
+- Be professional interviewer
+- No marketing tone
+- No fluff
+- Be direct like real interview feedback
+`;
+  
+  const response = await axios.post(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: prompt }]
+      }
+    ]
+  });
+
+  const content = response.data.candidates[0].content.parts[0].text;
+
+  const clean = content.replace(/```json/g, "").replace(/```/g, "").trim();
+
+  return JSON.parse(clean);
+};
+
+

@@ -37,5 +37,9 @@ router.post(
   authenticateUser,
   InterviewController.submitAnswer
 )
-
+router.get(
+  "/:interviewId/feedback",
+  authenticateUser,
+  InterviewController.getFeedback
+);
 export default router;

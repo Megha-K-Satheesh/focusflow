@@ -21,6 +21,8 @@ const initialState = {
   score: null,
 
   feedback: null,
+   feedbackData: null,
+  feedbackLoading: false,
 };
 
 export const startInterview = createAsyncThunk(
@@ -147,6 +149,22 @@ export const submitAnswer = createAsyncThunk(
   }
 );
 
+export const getFeedback = createAsyncThunk(
+  "interview/getFeedback",
+  async (interviewId, thunkAPI) => {
+    try {
+      const response =
+        await interviewService.getFeedback(interviewId);
+
+      return response.data.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch feedback"
+      );
+    }
+  }
+);
 
 const interviewSlice = createSlice({
   name: "interview",
@@ -352,6 +370,21 @@ const interviewSlice = createSlice({
   state.loading = false;
   state.error = action.payload;
 })
+.addCase(getFeedback.pending, (state) => {
+  state.feedbackLoading = true;
+  state.error = null;
+})
+
+.addCase(getFeedback.fulfilled, (state, action) => {
+  state.feedbackLoading = false;
+  state.feedbackData = action.payload;
+})
+
+.addCase(getFeedback.rejected, (state, action) => {
+  state.feedbackLoading = false;
+  state.error = action.payload;
+})
+
   },
 });
 

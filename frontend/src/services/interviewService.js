@@ -44,4 +44,10 @@ export const interviewService = {
   );
 },
 
+ getFeedback(interviewId) {
+    return apiClient.get(
+      `/interviews/${interviewId}/feedback`
+    );
+  },
+
 };

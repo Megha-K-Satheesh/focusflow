@@ -93,6 +93,18 @@ static submitAnswer = asyncHandler(async (req, res) => {
   );
 });
  
+static getFeedback = asyncHandler(async (req, res) => {
+  const result = await InterviewService.getFeedback(
+    req.params.interviewId,
+    req.user.id
+  );
+
+  return ResponseHandler.success(
+    res,
+    "Feedback fetched successfully",
+    result
+  );
+});
 }
 
 export default InterviewController;

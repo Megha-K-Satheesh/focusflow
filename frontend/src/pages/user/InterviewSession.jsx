@@ -10,8 +10,9 @@ import {
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CodeEditor from "../../components/ui/CodeEditor";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { useMediaRecorder } from "../../hooks/useMediaRecorder";
 import {
   getInterview,
@@ -21,7 +22,6 @@ import {
   transcribeAudio
 } from "../../redux/slices/user/interviewSlice";
 import { showError, showSuccess } from "../../utils/toast";
-
 function InterviewSession() {
   const dispatch = useDispatch();
   const { interviewId } = useParams();
@@ -105,10 +105,15 @@ const onSubmit = async (data) => {
     ).unwrap();
 
     showSuccess("Answer submitted successfully");
+     await dispatch(getInterview(interviewId)).unwrap();
+      setValue("answer", "");
+    setCode("");
+    clearRecording();
   } catch (err) {
     showError(err || "Submit failed");
   }
 };
+
 
   const handleNextQuestion = () => {
     dispatch(getNextQuestion(interviewId));
@@ -123,6 +128,17 @@ const handlePreviousQuestion = () => {
     setCode("");
   clearRecording();
 };
+
+
+const navigate = useNavigate();
+
+const handleCompleteInterview = () => {
+  navigate(`/interview/${interviewId}/feedback`);
+};
+
+if (loading) {
+  return <LoadingSpinner />;
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-50 to-violet-100 px-6 py-10">
@@ -353,6 +369,18 @@ const handlePreviousQuestion = () => {
   <Send size={18} />
   {isSubmitted ? "Submitted" : "Submit Answer"}
 </button>
+
+
+{isLastQuestion && (
+    <button
+      type="button"
+      onClick={handleCompleteInterview}
+      disabled={loading}
+      className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-green-600 text-white hover:bg-green-700 transition"
+    >
+       Complete & Get Feedback
+    </button>
+  )}
   </div>
 </div>
         </form>
