@@ -7,7 +7,11 @@ export const interviewService = {
       data
     );
   },
-
+getInterviewHistory() {
+    return apiClient.get(
+      "/interviews/history"
+    );
+  },
   transcribeAudio(formData) {
     return apiClient.post(
       "/interviews/transcribe",
@@ -49,5 +53,5 @@ export const interviewService = {
       `/interviews/${interviewId}/feedback`
     );
   },
-
+  
 };

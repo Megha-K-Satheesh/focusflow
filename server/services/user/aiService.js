@@ -131,9 +131,16 @@ Do NOT use:
 - scenario
 
 Only use theory, coding.
+- Generate a short interview title.
+- The title must be 2–3 words only.
+- Do not use "Mock Interview" as the title.
+- The title should match the role or interview topics.
+- The "role" field should contain only the role or primary topic.
 Format:
 
 {
+"title": "Array Basics",
+  "role": "Array",
   "questions": [
     {
       "questionId": "q1",

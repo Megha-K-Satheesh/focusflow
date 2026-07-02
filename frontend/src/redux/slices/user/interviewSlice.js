@@ -23,6 +23,8 @@ const initialState = {
   feedback: null,
    feedbackData: null,
   feedbackLoading: false,
+   history: [],
+  historyLoading: false,
 };
 
 export const startInterview = createAsyncThunk(
@@ -166,6 +168,23 @@ export const getFeedback = createAsyncThunk(
   }
 );
 
+
+export const getInterviewHistory = createAsyncThunk(
+  "interview/getInterviewHistory",
+  async (_, thunkAPI) => {
+    try {
+      const response =
+        await interviewService.getInterviewHistory();
+
+      return response.data.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch interview history"
+      );
+    }
+  }
+);
 const interviewSlice = createSlice({
   name: "interview",
   initialState,
@@ -382,6 +401,20 @@ const interviewSlice = createSlice({
 
 .addCase(getFeedback.rejected, (state, action) => {
   state.feedbackLoading = false;
+  state.error = action.payload;
+})
+.addCase(getInterviewHistory.pending, (state) => {
+  state.historyLoading = true;
+  state.error = null;
+})
+
+.addCase(getInterviewHistory.fulfilled, (state, action) => {
+  state.historyLoading = false;
+  state.history = action.payload;
+})
+
+.addCase(getInterviewHistory.rejected, (state, action) => {
+  state.historyLoading = false;
   state.error = action.payload;
 })
 

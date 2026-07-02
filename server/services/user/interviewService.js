@@ -49,7 +49,10 @@ class InterviewService {
       studyPlanId = studyPlan._id;
 
       aiPayload = {
+
         interviewType,
+       
+  
         topics: completedTopics,
         level: studyPlan.level,
         mode: mode || "mixed",
@@ -105,7 +108,8 @@ try {
       studyPlanId,
 
       interviewType,
-
+    title:
+    aiResponse.title || "Mock Interview",
       role:
         role ||
         aiResponse.role ||
@@ -398,9 +402,17 @@ static async submitAnswer(interviewId, userId, data) {
       }
     });
 
-    const overallScore = questions.length
-      ? Math.round(totalScore / questions.length)
-      : 0;
+  const overallScore = questions.length
+  ? Math.round(totalScore / questions.length)
+  : 0;
+
+interview.overallScore = overallScore;
+interview.status = "completed";
+interview.completedAt = interview.completedAt || new Date();
+
+await interview.save();
+
+
 
     const performanceLevel =
       overallScore >= 8
@@ -433,6 +445,28 @@ static async submitAnswer(interviewId, userId, data) {
       questions: feedbackByQuestion,
     };
   }
+
+
+  static async getInterviewHistory(userId) {
+  const interviews = await Interview.find({ userId })
+    .sort({ createdAt: -1 });
+    if(!interviews){
+      throw ErrorFactory.notFount("History not found")
+    }
+
+  return interviews.map((interview) => ({
+    interviewId: interview._id,
+    title: interview.title,
+    role: interview.role,
+    level: interview.level,
+    mode: interview.mode,
+    status: interview.status,
+    overallScore: interview.overallScore,
+    totalQuestions: interview.totalQuestions,
+    createdAt: interview.createdAt,
+    completedAt: interview.completedAt,
+  }));
+}
 }
 
 export default InterviewService;

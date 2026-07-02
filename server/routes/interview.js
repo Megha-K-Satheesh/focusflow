@@ -11,6 +11,11 @@ router.post(
   InterviewController.startInterview
 );
 router.get(
+ "/history",
+  authenticateUser,
+  InterviewController.getInterviewHistory
+);
+router.get(
   "/:interviewId",
   authenticateUser,
   InterviewController.getInterview
@@ -42,4 +47,6 @@ router.get(
   authenticateUser,
   InterviewController.getFeedback
 );
+
+
 export default router;

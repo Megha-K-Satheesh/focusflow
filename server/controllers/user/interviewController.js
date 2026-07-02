@@ -105,6 +105,21 @@ static getFeedback = asyncHandler(async (req, res) => {
     result
   );
 });
+
+static getInterviewHistory = asyncHandler(
+  async (req, res) => {
+    const result =
+      await InterviewService.getInterviewHistory(
+        req.user.id
+      );
+
+    return ResponseHandler.success(
+      res,
+      "Interview history fetched successfully",
+      result
+    );
+  }
+);
 }
 
 export default InterviewController;

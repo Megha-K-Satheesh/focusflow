@@ -10,6 +10,7 @@ import ResetPasswordOtp from "./pages/auth/VerifyResetPasswordOtp";
 import CreateStudyPlan from "./pages/user/CreateStudyPlan";
 import Home from "./pages/user/Home";
 import InterviewFeedback from "./pages/user/InterviewFeedback";
+import InterviewHistory from "./pages/user/InterviewHistory";
 import InterviewSession from "./pages/user/InterviewSession";
 import InterviewStart from "./pages/user/InterviewStart";
 import ViewStudyPlan from "./pages/user/ViewStudyPlan";
@@ -30,9 +31,10 @@ function App() {
       <Route path="/view-study-plan"  element={<ViewStudyPlan/>} />
       <Route path="/interview-start"  element={<InterviewStart/>} />
       <Route  path="/interview-session/:interviewId"  element={<InterviewSession/>} />
-     <Route path="/interview/:interviewId/feedback" element={<InterviewFeedback />}
-/>
-    </Routes>
+     <Route path="/interview/:interviewId/feedback" element={<InterviewFeedback />}/>
+    
+     <Route path="/interview-history" element = {<InterviewHistory/>}/>
+</Routes>
           <ToastContainer />
     </>
   )
