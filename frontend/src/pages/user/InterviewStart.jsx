@@ -7,6 +7,7 @@ import {
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../../components/ui/Navbar";
 import { startInterview } from "../../redux/slices/user/interviewSlice";
 function InterviewStart() {
   const dispatch = useDispatch();
@@ -47,7 +48,10 @@ function InterviewStart() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-purple-50 to-violet-200 flex items-center justify-center px-4 py-10">
+    <>
+    <Navbar/>
+    
+    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-purple-50 to-violet-200 flex items-center justify-center px-4 py-10 mt-10">
       <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-purple-100 overflow-hidden">
         <div className="bg-gradient-to-r from-purple-600 to-violet-600 p-8 text-center">
           <h1 className="text-4xl font-bold text-white">
@@ -214,6 +218,7 @@ function InterviewStart() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import CompletedStudyPlan from "../../components/ui/CompletedStudyPlan";
 import Footer from "../../components/ui/Footer";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Navbar from "../../components/ui/Navbar";
+import NoStudyPlan from "../../components/ui/NoStudyPlan";
 import ProgressBar from "../../components/ui/ProgressBar";
 import { getStudyPlan, markTaskCompleted } from "../../redux/slices/user/studyPlanSlice";
 import { showError, showSuccess } from "../../utils/toast";
@@ -61,17 +63,19 @@ return ( <div className="min-h-screen flex items-center justify-center text-red-
 {error} </div>
 );
 }
-
 if (!studyPlan) {
-return ( <div className="min-h-screen flex items-center justify-center text-gray-500">
-No Active Study Plan Found </div>
-);
+  return <NoStudyPlan />;
 }
+
+if (studyPlan.status === "completed") {
+  return <CompletedStudyPlan />;
+}
+
 
 return (
   <>
   <Navbar/>
-   <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-100 mt-12"> 
+   <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-100 mt-10"> 
 <div className="max-w-7xl mx-auto p-6">
 
 

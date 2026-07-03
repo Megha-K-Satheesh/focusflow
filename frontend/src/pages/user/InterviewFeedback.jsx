@@ -15,6 +15,7 @@ import {
   ThumbsUp,
   TrendingUp
 } from "lucide-react";
+import Navbar from "../../components/ui/Navbar";
 
 function InterviewFeedback() {
   const dispatch = useDispatch();
@@ -43,7 +44,9 @@ function InterviewFeedback() {
   const score = feedbackData?.summary?.overallScore || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-100 px-6 py-10">
+    <>
+    <Navbar/>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-100 px-6 py-10 mt-10">
       <div className="max-w-6xl mx-auto">
 
        
@@ -59,9 +62,6 @@ function InterviewFeedback() {
         </div>
 
         
-
-
-
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
 
@@ -222,6 +222,7 @@ function InterviewFeedback() {
 
       </div>
     </div>
+    </>
   );
 }
 

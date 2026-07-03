@@ -53,7 +53,7 @@ const { loading } = useSelector((state) => state.auth);
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* New Password */}
+          
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">
               New Password
@@ -89,7 +89,7 @@ const { loading } = useSelector((state) => state.auth);
             )}
           </div>
 
-          {/* Confirm Password */}
+      
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">
               Confirm Password

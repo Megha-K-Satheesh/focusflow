@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import CodeEditor from "../../components/ui/CodeEditor";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import Navbar from "../../components/ui/Navbar";
 import { useMediaRecorder } from "../../hooks/useMediaRecorder";
 import {
   getInterview,
@@ -141,7 +142,9 @@ if (loading) {
 }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-50 to-violet-100 px-6 py-10">
+    <>
+    <Navbar/>
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-50 to-violet-100 px-6 py-10 mt-10">
       <div className="max-w-5xl mx-auto">
         
 <div className="bg-white border border-purple-100 rounded-2xl shadow-sm p-5 mb-6 space-y-4">
@@ -386,6 +389,7 @@ if (loading) {
         </form>
       </div>
     </div>
+    </>
   );
 }
 

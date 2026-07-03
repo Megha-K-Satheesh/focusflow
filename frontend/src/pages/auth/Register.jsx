@@ -49,7 +49,7 @@ function Register() {
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Username */}
+         
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">
               Username
@@ -75,7 +75,7 @@ function Register() {
             )}
           </div>
 
-          {/* Email */}
+          
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">
               Email
@@ -101,7 +101,7 @@ function Register() {
             )}
           </div>
 
-          {/* Password */}
+         
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">
               Password
@@ -137,7 +137,7 @@ function Register() {
             )}
           </div>
 
-          {/* Confirm Password */}
+          
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">
               Confirm Password

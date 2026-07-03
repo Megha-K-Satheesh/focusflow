@@ -59,20 +59,37 @@ class StudyPlanService {
     return studyPlan;
   }
 
-  static async getStudyPlan(userId){
-      if(!userId){
-        throw ErrorFactory.validation("UserId not provided");
 
-      }
-      const studyPlan = await StudyPlan.findOne({
-        userId,
-        status:"active"
-      })
-      if(!studyPlan){
-         throw ErrorFactory.notFound("StudyPlan not found")
-      }
+static async getStudyPlan(userId) {
+  if (!userId) {
+    throw ErrorFactory.validation("UserId not provided");
+  }
 
-       let totalTasks = 0;
+
+  let studyPlan = await StudyPlan.findOne({
+    userId,
+    status: "active",
+  });
+
+  
+  if (!studyPlan) {
+    studyPlan = await StudyPlan.findOne({
+      userId,
+      status: "completed",
+    }).sort({ completedAt: -1 });
+  }
+
+ 
+  if (!studyPlan) {
+    return {
+      studyPlan: null,
+      progress: 0,
+      completedTasks: 0,
+      totalTasks: 0,
+    };
+  }
+
+  let totalTasks = 0;
   let completedTasks = 0;
 
   studyPlan.days.forEach((day) => {
@@ -88,78 +105,81 @@ class StudyPlanService {
       ? 0
       : Math.round((completedTasks / totalTasks) * 100);
 
-      
   return {
     studyPlan,
     progress,
     completedTasks,
     totalTasks,
   };
+}
+  static async markTaskCompleted(userId, taskId) {
+  if (!userId || !taskId) {
+    throw ErrorFactory.validation("userId and taskId are required");
   }
-  static async markTaskCompleted(userId,taskId){
-    if(!userId && !taskId){
-      throw ErrorFactory.validation("userId and taskId required");
-    }
 
-    const studyPlan  = await StudyPlan.findOne({
-      userId,
-      status:"active"
-    })
-    if(!studyPlan){
-      throw ErrorFactory.notFound("Study Plan notFound");
-    }
-       let taskFound = false;
-    console.log("Task ID from request:", taskId);
-    for (const day of studyPlan.days) {
-      for (const task of day.tasks) {
-        if (task._id.toString() === taskId) {
-          task.completed = !task.completed;
+  const studyPlan = await StudyPlan.findOne({
+    userId,
+    status: "active",
+  });
 
-        task.completedAt = task.completed
-          ? new Date()
-          : null;
+  if (!studyPlan) {
+    throw ErrorFactory.notFound("Study Plan not found");
+  }
 
+  let taskFound = false;
 
-          taskFound = true;
-          break;
-        }
+  for (const day of studyPlan.days) {
+    for (const task of day.tasks) {
+      if (task._id.toString() === taskId) {
+        task.completed = !task.completed;
+        task.completedAt = task.completed ? new Date() : null;
+
+        taskFound = true;
+        break;
       }
-
-      if (taskFound) break;
-    }
-       if (!taskFound) {
-      throw ErrorFactory.notFound("Task notFound")
     }
 
-    await studyPlan.save();
-
-    let totalTasks = 0;
-    let completedTasks = 0;
-
-    studyPlan.days.forEach((day) => {
-      totalTasks += day.tasks.length;
-
-      completedTasks += day.tasks.filter(
-        (task) => task.completed
-      ).length;
-    });
-
-    const progress =
-      totalTasks === 0
-        ? 0
-        : Math.round(
-            (completedTasks / totalTasks) * 100
-          );
-
-    return {      
-      studyPlan,
-      progress,
-      completedTasks,
-      totalTasks,
-    };
-
-
+    if (taskFound) break;
   }
+
+  if (!taskFound) {
+    throw ErrorFactory.notFound("Task not found");
+  }
+
+  let totalTasks = 0;
+  let completedTasks = 0;
+
+  studyPlan.days.forEach((day) => {
+    totalTasks += day.tasks.length;
+
+    completedTasks += day.tasks.filter(
+      (task) => task.completed
+    ).length;
+  });
+
+  const progress =
+    totalTasks === 0
+      ? 0
+      : Math.round((completedTasks / totalTasks) * 100);
+
+  if (completedTasks === totalTasks && totalTasks > 0) {
+    studyPlan.status = "completed";
+    studyPlan.completedAt = new Date();
+  } else {
+    studyPlan.status = "active";
+    studyPlan.completedAt = null;
+  }
+
+  await studyPlan.save();
+
+  return {
+    studyPlan,
+    progress,
+    completedTasks,
+    totalTasks,
+  };
+}
+
 }
 
 export default StudyPlanService

@@ -10,6 +10,7 @@ import {
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
+import { useNavigate } from "react-router-dom";
 import Footer from "../../components/ui/Footer";
 import Navbar from "../../components/ui/Navbar";
 import { createStudyPlan } from "../../redux/slices/user/studyPlanSlice";
@@ -18,6 +19,7 @@ import { errorStyle, inputStyle } from "../../utils/uiConstants";
 
 function CreateStudyPlan() {
   const dispatch = useDispatch();
+  const navigate = useNavigate()
  
   const {loading} = useSelector((state)=>state.studyPlan)
   const {
@@ -33,6 +35,7 @@ function CreateStudyPlan() {
       await dispatch(createStudyPlan(data)).unwrap();
 
       showSuccess("Study plan generated successfully");
+      navigate("/view-study-plan")
     } catch (error) {
       showError(error);
     } 
@@ -82,14 +85,14 @@ function CreateStudyPlan() {
 </div>
        
 
-        {/* Form Card */}
+        
 
         <div className="rounded-3xl border border-purple-100 bg-white shadow-2xl shadow-purple-100/40">
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="p-6 md:p-10 space-y-10"
           >
-            {/* Learning Goal */}
+            
 
             <section>
               <div className="flex items-center gap-3 mb-6">
@@ -142,7 +145,7 @@ function CreateStudyPlan() {
               </div>
             </section>
 
-            {/* Experience & Preferences */}
+          
 
             <section>
               <div className="flex items-center gap-3 mb-6">
@@ -259,7 +262,7 @@ function CreateStudyPlan() {
               </div>
             </section>
 
-            {/* Learning Background */}
+         
 
             <section>
               <div className="flex items-center gap-3 mb-6">
@@ -307,7 +310,7 @@ function CreateStudyPlan() {
               </div>
             </section>
 
-            {/* Notes */}
+           
 
             <section>
               <div className="flex items-center gap-3 mb-6">
@@ -334,8 +337,7 @@ function CreateStudyPlan() {
               />
             </section>
 
-            {/* Submit */}
-
+         
             <div className="border-t border-gray-100 pt-6">
               <button
                 type="submit"

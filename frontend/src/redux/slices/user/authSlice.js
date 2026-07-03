@@ -102,10 +102,18 @@ const authSlice = createSlice({
     reducers:{
        
        
-       logout:(state)=>{
-        state.user = null,
-        state.isLoggedIn= false
-       }
+      logout: (state) => {
+    state.user = null;
+    state.isAuthenticated = false;
+    state.error = null;
+    state.loading = false;
+    state.userId = null;
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("otpUserId");
+    localStorage.removeItem("resetToken");
+    localStorage.removeItem("resetOtpUserId");
+  },
     },
     extraReducers: (builder) => {
   builder

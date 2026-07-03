@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import Navbar from "../../components/ui/Navbar";
 import { getInterviewHistory } from "../../redux/slices/user/interviewSlice";
 
 function InterviewHistory() {
@@ -55,7 +56,9 @@ function InterviewHistory() {
       : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-50 to-violet-100 py-10 px-6">
+    <>
+    <Navbar/>
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-50 to-violet-100 py-10 px-6 mt-10">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-purple-800">
@@ -257,6 +260,7 @@ function InterviewHistory() {
         )}
       </div>
     </div>
+    </>
   );
 }
 
