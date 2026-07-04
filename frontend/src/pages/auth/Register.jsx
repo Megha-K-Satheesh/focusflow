@@ -2,14 +2,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { registerUser } from "../../redux/slices/user/authSlice";
 import { showError, showSuccess } from "../../utils/toast";
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const {loading} = useSelector((state)=>state.auth)
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
+ 
    const dispatch = useDispatch()
    const navigate = useNavigate()
   const {
@@ -35,6 +36,11 @@ function Register() {
 
   };
 
+
+
+  if (isAuthenticated) {
+  return <Navigate to="/dashboard" replace />;
+}
   return (
     <>
     
@@ -179,6 +185,7 @@ function Register() {
 
           <button
             type="submit"
+            disabled={loading}
             className="w-full bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-violet-700 transition-all duration-300"
           >
           {loading ? "Creating account..." : "Create Account"}

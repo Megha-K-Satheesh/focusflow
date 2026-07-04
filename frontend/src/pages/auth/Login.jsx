@@ -22,7 +22,7 @@ const onSubmit =async (data) => {
     
     await dispatch(login(data)).unwrap()
      showSuccess("Login successful");
-    navigate("/",{replace:true})
+    navigate("/dashboard",{replace:true})
     
 
   } catch (error) {
@@ -30,8 +30,8 @@ const onSubmit =async (data) => {
   }
 };
 
-if(isAuthenticated){
-  return <Navigate to="/" replace />
+if (isAuthenticated) {
+  return <Navigate to="/dashboard" replace />;
 }
 return (
 <> <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-200 via-purple-50 to-violet-200 px-4"> <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border border-purple-100"> <h1 className="text-3xl font-bold text-center text-purple-800 mb-2">
@@ -118,9 +118,10 @@ Welcome Back </h1>
          
         <button
           type="submit"
+          disabled={loading}
           className="w-full bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-violet-700 transition-all duration-300"
         >
-          Login
+            {loading ? "Logging in..." : "Login"}
         </button>
        
       </form>
