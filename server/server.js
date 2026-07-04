@@ -10,9 +10,10 @@ import { requestLogger } from "./middleware/requestLogger.js";
 import { setupRoutes } from "./routes/index.js";
 import logger from "./utils/logger.js";
 const app = express();
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
