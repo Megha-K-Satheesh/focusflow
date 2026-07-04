@@ -5,8 +5,6 @@ import StudyPlan from "../../models/StudyPlan.js";
 class DashboardService {
  
 
-
-
    static async getDashboard(userId) {
     let studyPlan = await StudyPlan.findOne({
       userId,
