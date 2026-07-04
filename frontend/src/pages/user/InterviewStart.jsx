@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/ui/Navbar";
 import { startInterview } from "../../redux/slices/user/interviewSlice";
+import { errorStyle } from "../../utils/uiConstants";
 function InterviewStart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ function InterviewStart() {
     register,
     handleSubmit,
     watch,
+      formState: { errors },
   } = useForm({
     defaultValues: {
       interviewType: "custom",
@@ -95,10 +97,21 @@ function InterviewStart() {
                 <input
                   type="text"
                   placeholder="MERN Stack Developer"
-                  {...register("role")}
+                  {...register("role" ,{
+                    validate: (value) =>
+                      interviewType === "study-plan" ||
+                      value.trim().length >= 3 ||
+                      "Role must contain at least 3 characters",
+                  })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
-              </div>
+
+                      {errors.role && (
+                      <p className={errorStyle}>
+                        {errors.role.message}
+                      </p>
+                    )}
+                    </div>
             )}
 
             <div>
@@ -154,9 +167,22 @@ function InterviewStart() {
                 max="20"
                 {...register("questionCount", {
                   valueAsNumber: true,
+                  min: {
+                    value: 1,
+                    message: "Minimum is 1 question",
+                  },
+                  max: {
+                    value: 20,
+                    message: "Maximum is 20 questions",
+                  },
                 })}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
+                            {errors.questionCount && (
+                <p className={errorStyle} >
+                  {errors.questionCount.message}
+                </p>
+              )}
             </div>
 
             {error && (

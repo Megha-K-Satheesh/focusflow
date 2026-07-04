@@ -52,7 +52,7 @@ function NoStudyPlan() {
         </div>
 
         <Link
-          to="/study-plan"
+          to="/create-study-plan"
           className="inline-flex items-center justify-center mt-10 px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold transition"
         >
           Create Your First Study Plan

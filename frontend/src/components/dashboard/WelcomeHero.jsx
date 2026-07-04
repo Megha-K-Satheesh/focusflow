@@ -68,7 +68,7 @@ function WelcomeHero() {
               to={
                 hasInterview
                   ? `/interview-session/${activeInterview.interviewId}`
-                  : "/start-interview"
+                  : "/interview-start"
               }
               className="flex items-center gap-2 rounded-xl border border-white/40 px-6 py-3 font-semibold backdrop-blur transition hover:bg-white/10"
             >

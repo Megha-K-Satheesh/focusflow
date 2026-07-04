@@ -134,7 +134,11 @@ function CreateStudyPlan() {
                       message:
                         "Goal must contain at least 5 characters",
                     },
-                  })}
+                        maxLength: {
+                          value: 200,
+                          message: "Goal cannot exceed 200 characters",
+                        },
+                      })}
                 />
 
                 {errors.goal && (
@@ -211,9 +215,9 @@ function CreateStudyPlan() {
                           "Minimum duration is 1 day",
                       },
                       max: {
-                        value: 365,
+                        value: 90,
                         message:
-                          "Maximum duration is 365 days",
+                          "Maximum duration is 90 days",
                       },
                     })}
                   />
@@ -237,6 +241,14 @@ function CreateStudyPlan() {
                     {...register("dailyHours", {
                       required:
                         "Daily study hours is required",
+                         min: {
+                      value: 1,
+                      message: "Minimum is 1 hour",
+                    },
+                    max: {
+                      value: 24,
+                      message: "Maximum is 24 hours",
+                    },
                     })}
                   />
 
@@ -256,8 +268,20 @@ function CreateStudyPlan() {
                     type="text"
                     placeholder="Job, Internship, Interview Preparation"
                     className={inputStyle}
-                    {...register("targetOutcome")}
+                    {...register("targetOutcome",
+                                        {
+                    maxLength: {
+                      value: 100,
+                      message: "Cannot exceed 100 characters",
+                    },
+                  }
+                    )}
                   />
+               {errors.targetOutcome && (
+              <p className={errorStyle}>
+                {errors.targetOutcome.message}
+              </p>
+            )}
                 </div>
               </div>
             </section>
@@ -291,8 +315,20 @@ function CreateStudyPlan() {
                     rows={5}
                     placeholder="Describe what you already know..."
                     className={inputStyle}
-                    {...register("currentKnowledge")}
+                 
+     {...register("currentKnowledge", {
+    maxLength: {
+      value: 700,
+      message: "Cannot exceed 700 characters",
+    },
+  })}
                   />
+
+                  {errors.currentKnowledge && (
+  <p className={errorStyle}>
+    {errors.currentKnowledge.message}
+  </p>
+)}
                 </div>
 
                 <div>
@@ -304,8 +340,19 @@ function CreateStudyPlan() {
                     rows={5}
                     placeholder="Topics you struggle with..."
                     className={inputStyle}
-                    {...register("weakAreas")}
+                    
+                     {...register("weakAreas", {
+                        maxLength: {
+                          value: 700,
+                          message: "Notes cannot exceed 500 characters",
+                        },
+                      })}
                   />
+                  {errors.weakAreas && (
+  <p className={errorStyle}>
+    {errors.weakAreas.message}
+  </p>
+)}
                 </div>
               </div>
             </section>
@@ -333,10 +380,20 @@ function CreateStudyPlan() {
                 rows={5}
                 placeholder="Anything else the AI should know?"
                 className={inputStyle}
-                {...register("notes")}
+                   {...register("notes", {
+                maxLength: {
+                  value: 700,
+                  message: "Notes cannot exceed 700 characters",
+                },
+              })}
               />
+              {errors.notes && (
+  <p className={errorStyle}>
+    {errors.notes.message}
+  </p>
+)}
             </section>
-
+            
          
             <div className="border-t border-gray-100 pt-6">
               <button

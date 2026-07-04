@@ -81,7 +81,7 @@ export default function AboutPage() {
 
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Link
-                to="/"
+                to="/dashboard"
                 className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 font-semibold text-white transition hover:bg-violet-700"
               >
                 Go to Dashboard
@@ -89,7 +89,7 @@ export default function AboutPage() {
               </Link>
 
               <Link
-                to="/study-plan/create"
+                to="/create-study-plan"
                 className="rounded-xl border border-violet-200 bg-white px-6 py-3 font-semibold text-violet-600 transition hover:bg-violet-50"
               >
                 Create Study Plan
@@ -275,7 +275,7 @@ export default function AboutPage() {
             </p>
 
             <Link
-              to="/"
+              to="/dashboard"
               className="mt-8 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-8 py-3 font-semibold text-white transition hover:bg-violet-700"
             >
               Get Started

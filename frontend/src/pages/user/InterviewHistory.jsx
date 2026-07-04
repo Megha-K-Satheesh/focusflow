@@ -130,7 +130,7 @@ function InterviewHistory() {
             </p>
 
             <button
-              onClick={() => navigate("/interview")}
+              onClick={() => navigate("/interview-start")}
               className="mt-6 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold hover:opacity-90"
             >
               Start Interview

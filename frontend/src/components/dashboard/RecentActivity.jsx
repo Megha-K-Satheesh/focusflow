@@ -27,7 +27,7 @@ function RecentActivity() {
         </div>
 
         <Link
-          to="/interview/history"
+          to="/interview-history"
           className="flex items-center gap-2 text-purple-600 font-medium hover:text-purple-700"
         >
           View All
@@ -100,7 +100,7 @@ function RecentActivity() {
           </p>
 
           <Link
-            to="/start-interview"
+            to="/interview-start"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-medium text-white transition hover:bg-purple-700"
           >
             Start Interview

@@ -141,7 +141,7 @@ function InterviewCard() {
           </p>
 
           <Link
-            to="/start-interview"
+            to="/interview-start"
             className="mt-6 flex items-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 font-medium text-white transition hover:bg-indigo-700"
           >
             Start Interview

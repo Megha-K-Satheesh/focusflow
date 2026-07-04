@@ -93,7 +93,7 @@ if (studyPlan?.status === "completed") {
           </Link>
 
           <Link
-            to="/interviews"
+            to="/interview-start"
             className="inline-flex items-center justify-center rounded-2xl border border-purple-200 px-6 py-3 font-medium text-purple-700 transition hover:bg-purple-50"
           >
             Start AI Interview

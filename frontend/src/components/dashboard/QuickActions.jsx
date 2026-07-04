@@ -44,7 +44,7 @@ function QuickActions() {
         : "Start",
       link: activeInterview?.exists
         ? `/interview-session/${activeInterview.interviewId}`
-        : "/start-interview",
+        : "/interview-start",
     },
     {
       title: "Interview History",
