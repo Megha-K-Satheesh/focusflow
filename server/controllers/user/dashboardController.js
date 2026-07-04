@@ -1,5 +1,6 @@
 import asyncHandler from "../../middleware/asyncHandler.js";
-import DashboardService from "../../services/user/dashboardService.js";
+import DashboardService from "../../services/user/userDashboardService.js";
+
 import ResponseHandler from "../../utils/responseHandler.js";
 
 class DashboardController {

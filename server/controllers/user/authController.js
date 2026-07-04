@@ -1,5 +1,5 @@
 import asyncHandler from "../../middleware/asyncHandler.js";
-import AuthService from "../../services/user/authService.js";
+import AuthService from "../../services/user/userAuthService.js";
 import ResponseHandler from "../../utils/responseHandler.js";
 
 
